@@ -17,7 +17,7 @@ void postRequest(json data_to_send)
   curl = curl_easy_init();
   if(curl) {
 
-    curl_easy_setopt(curl, CURLOPT_URL, "http://postit.example.com/moo.cgi");
+    curl_easy_setopt(curl, CURLOPT_URL, "https://fathomless-thicket-66026.herokuapp.com/argo");
 
     curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data_to_send);
  
