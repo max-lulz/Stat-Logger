@@ -1,11 +1,12 @@
 #include <bits/stdc++.h>
 #include <string>
 #include <fstream>
-#include <nlohmann/json.hpp>
+#include "json.hpp"
 #include <curl/curl.h>
 #include <time.h>
 
 using namespace std;
+using json = nlohmann::json;
 
 void postRequest(json data_to_send)
 {
@@ -17,7 +18,7 @@ void postRequest(json data_to_send)
   curl = curl_easy_init();
   if(curl) {
 
-    curl_easy_setopt(curl, CURLOPT_URL, "http://postit.example.com/moo.cgi");
+    curl_easy_setopt(curl, CURLOPT_URL, "https://fathomless-thicket-66026.herokuapp.com/argo");
 
     curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data_to_send);
  
@@ -66,11 +67,11 @@ int main()
 {
   time_t timer;                     
   
-  init_time = time(NULL);
+  int init_time = time(NULL);
 
   while(time(NULL) - init_time <= 60)
   {
-  	req_time = time(NULL);
+  	int req_time = time(NULL);
   	while(time(NULL) - req_time <= 10);
   	{
   		get_ram_data();
@@ -80,5 +81,5 @@ int main()
   	}
   }
   return 0;
-  }
+  
 }
