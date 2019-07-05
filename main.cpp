@@ -7,7 +7,7 @@
 
 using namespace std;
 
-void postRequest(json data_to_send)
+void postRequest(json data_to_send)     // make a POST request
 {
   CURL *curl;
   CURLcode res;
@@ -31,16 +31,16 @@ void postRequest(json data_to_send)
   curl_global_cleanup();
 }
 
-string read_ram_data()													 // read from file and store in a string			
+string read_ram_data()		          // read from file and store in a string			
 {
 	ifstream in_ram("ram_data.txt");
 	string data, line;
 
 	if(in_ram.is_open())
 	{
-		while(getline(in_ram,line))
-		{
-			data += line;
+		while(getline(in_ram,line))  // add ram usage by process linewise
+		{ 
+			data += line;      
 			data += '\n';
 		}
 
@@ -51,7 +51,7 @@ string read_ram_data()													 // read from file and store in a string
 	return data;
 }
 
-void get_ram_data()                                                      // get top 10 mem using processes and store in a file
+void get_ram_data()                       // get top 10 mem using processes and store in a file
 {
 	string cmd = R"(ps axo rss,comm,pid \
 				| awk '{ proc_list[$2] += $1; } END \
