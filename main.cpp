@@ -1,11 +1,12 @@
 #include <bits/stdc++.h>
 #include <string>
 #include <fstream>
-#include <nlohmann/json.hpp>
+#include "json.hpp"
 #include <curl/curl.h>
 #include <time.h>
 
 using namespace std;
+using json = nlohmann::json;
 
 void postRequest(json data_to_send)     // make a POST request
 {
@@ -66,11 +67,11 @@ int main()
 {
   time_t timer;                     
   
-  init_time = time(NULL);
+  int init_time = time(NULL);
 
   while(time(NULL) - init_time <= 60)
   {
-  	req_time = time(NULL);
+  	int req_time = time(NULL);
   	while(time(NULL) - req_time <= 10);
   	{
   		get_ram_data();
@@ -79,6 +80,7 @@ int main()
   		postRequest(data_to_send);
   	}
   }
-  return 0;
-  }
+  return 0;  
 }
+
+
