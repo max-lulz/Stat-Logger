@@ -10,29 +10,27 @@ using json = nlohmann::json;
 
 void postRequest(json data_to_send)     // make a POST request
 {
-  CURL *curl;
-  CURLcode res;
- 
-  curl_global_init(CURL_GLOBAL_ALL);
- 
-  curl = curl_easy_init();
-  if(curl) {
+	CURL *curl;
+	CURLcode res;
 
-    curl_easy_setopt(curl, CURLOPT_URL, "https://fathomless-thicket-66026.herokuapp.com/argo");
+	curl_global_init(CURL_GLOBAL_ALL);
 
-    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data_to_send);
+    curl = curl_easy_init();
+	if(curl) 
+	{
+    	curl_easy_setopt(curl, CURLOPT_URL, "https://fathomless-thicket-66026.herokuapp.com/argo");
+   		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data_to_send);
  
-    res = curl_easy_perform(curl);
-    if(res != CURLE_OK)
-      fprintf(stderr, "curl_easy_perform() failed: %s\n",
-              curl_easy_strerror(res));
- 
-    curl_easy_cleanup(curl);
-  }
-  curl_global_cleanup();
+    	res = curl_easy_perform(curl);
+    	if(res != CURLE_OK)
+      		fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+		
+    	curl_easy_cleanup(curl);
+  	}
+		curl_global_cleanup();
 }
 
-string read_ram_data()		          // read from file and store in a string			
+string read_ram_data()		          // read from file and store ram_usage in a string			
 {
 	ifstream in_ram("ram_data.txt");
 	string data, line;
@@ -46,7 +44,6 @@ string read_ram_data()		          // read from file and store in a string
 		}
 
 	}
-
 	in_ram.close();
 
 	return data;
@@ -65,22 +62,23 @@ void get_ram_data()                       // get top 10 mem using processes and 
 
 int main()
 {
-  time_t timer;                     
+	time_t timer;                     
   
-  int init_time = time(NULL);
+  	int init_time = time(NULL);
 
-  while(time(NULL) - init_time <= 60)
-  {
-  	int req_time = time(NULL);
-  	while(time(NULL) - req_time <= 10);
+  	while(time(NULL) - init_time <= 60)
   	{
-  		get_ram_data();
-  		json data_to_send;
-  		data_to_send["ram_usage"] = read_ram_data();
-  		postRequest(data_to_send);
+  		int req_time = time(NULL);
+  		while(time(NULL) - req_time <= 10);
+  		{
+  			get_ram_data();
+  			json data_to_send;
+  			data_to_send["ram_usage"] = read_ram_data();
+  			postRequest(data_to_send);
+  		}
   	}
-  }
-  return 0;  
+	
+  	return 0;  
 }
 
 
