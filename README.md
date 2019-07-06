@@ -1,2 +1,6 @@
 # Sys_Stat_Logger-C-
-Logs System usage statistics and sends it to a webserver.
+(WIP) Not been tested yet. 
+
+Logs System usage statistics and sends it to a Webserver.
+
+
