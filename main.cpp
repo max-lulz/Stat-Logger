@@ -15,7 +15,7 @@ void postRequest(json data_to_send)     // make a POST request
 
 	curl_global_init(CURL_GLOBAL_ALL);
 
-    curl = curl_easy_init();
+ 	curl = curl_easy_init();
 	if(curl) 
 	{
 		struct curl_slist *headers=NULL;      // always init to NULL
@@ -23,17 +23,18 @@ void postRequest(json data_to_send)     // make a POST request
 		headers = curl_slist_append(headers, "Accept: application/json");
 		headers = curl_slist_append(headers, "Content-Type: application/json");
 
-    	curl_easy_setopt(curl, CURLOPT_URL, "https://fathomless-thicket-66026.herokuapp.com/argo");
+    		curl_easy_setopt(curl, CURLOPT_URL, "https://fathomless-thicket-66026.herokuapp.com/argo");
    		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data_to_send.dump().c_str());
    		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
  
-    	res = curl_easy_perform(curl);
-    	if(res != CURLE_OK)
-      		fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+		res = curl_easy_perform(curl);
+		if(res != CURLE_OK)
+			fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
 		
-    	curl_easy_cleanup(curl);
+    		curl_easy_cleanup(curl);
   	}
-		curl_global_cleanup();
+	
+	curl_global_cleanup();
 }
 
 string read_ram_data()		          // read from file and store ram_usage in a string			
