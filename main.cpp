@@ -61,10 +61,9 @@ void get_ram_data()                       // get top 10 mem using processes and 
 }
 
 int main()
-{
-	time_t timer;                     
+{                   
   
-  	int init_time = time(NULL);
+  	/*int init_time = time(NULL);
 
   	while(time(NULL) - init_time <= 60)
   	{
@@ -75,6 +74,15 @@ int main()
   			json data_to_send;
   			data_to_send["ram_usage"] = read_ram_data();
   			postRequest(data_to_send);
+  		}
+  	}*/
+	time_t init_time = time(NULL);
+  	while(1)
+  	{
+  		if(time(NULL) - init_time >= 1)
+  		{
+  			cout << time(NULL) << endl;
+  			init_time = time(NULL);
   		}
   	}
 	
