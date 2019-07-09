@@ -18,8 +18,14 @@ void postRequest(json data_to_send)     // make a POST request
     curl = curl_easy_init();
 	if(curl) 
 	{
+		struct curl_slist *headers=NULL;      // always init to NULL
+
+		headers = curl_slist_append(headers, "Accept: application/json");
+		headers = curl_slist_append(headers, "Content-Type: application/json");
+
     	curl_easy_setopt(curl, CURLOPT_URL, "https://fathomless-thicket-66026.herokuapp.com/argo");
-   		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data_to_send);
+   		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data_to_send.dump().c_str());
+   		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
  
     	res = curl_easy_perform(curl);
     	if(res != CURLE_OK)
@@ -49,13 +55,13 @@ string read_ram_data()		          // read from file and store ram_usage in a str
 	return data;
 }
 
-void get_ram_data()                       // get top 10 mem using processes and store in a file
+void get_ram_data()                  // get name and %usage of top 10 memory using processes and store in a file
 {
 	string cmd = R"(ps axo rss,comm,pid \
 				| awk '{ proc_list[$2] += $1; } END \
 				{ for (proc in proc_list) { printf("%d\t%s\n", proc_list[proc],proc); }}' \
 				| sort -n | tail -n 10 | sort -rn \
-				| awk '{$1/=1024;printf "%.0fMB\t",$1}{print $2}' > ram_data.txt)";
+				| awk '{$1/=80204.16;printf "%.2f%%\t",$1}{print $2}' > ram_data.txt)";
 
 	system(cmd.c_str());
 }
@@ -63,26 +69,19 @@ void get_ram_data()                       // get top 10 mem using processes and 
 int main()
 {                   
   
-  	/*int init_time = time(NULL);
+  	time_t init_time = time(NULL);
 
   	while(time(NULL) - init_time <= 60)
   	{
-  		int req_time = time(NULL);
-  		while(time(NULL) - req_time <= 10);
+  		time_t req_time = time(NULL);
+  		while(time(NULL) - req_time <= 10)
   		{
   			get_ram_data();
   			json data_to_send;
+  			data_to_send["Team name"] = "Argo";
   			data_to_send["ram_usage"] = read_ram_data();
   			postRequest(data_to_send);
-  		}
-  	}*/
-	time_t init_time = time(NULL);
-  	while(1)
-  	{
-  		if(time(NULL) - init_time >= 1)
-  		{
-  			cout << time(NULL) << endl;
-  			init_time = time(NULL);
+  			//cout <<  << endl;
   		}
   	}
 	
