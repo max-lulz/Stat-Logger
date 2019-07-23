@@ -8,7 +8,7 @@
 using namespace std;
 using json = nlohmann::json;
 
-void postRequest(json data_to_send, int length)     // make a POST request
+void postRequest(char *data_to_send, int length)     // make a POST request
 {
 	CURL *curl;
 	CURLcode res;
@@ -24,8 +24,8 @@ void postRequest(json data_to_send, int length)     // make a POST request
 		headers = curl_slist_append(headers, "Content-Type: application/json");
 
     	curl_easy_setopt(curl, CURLOPT_URL, "https://fathomless-thicket-66026.herokuapp.com/argo");
-   		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data_to_send.dump().c_str());
-   		curl_easy_setopt(curl, )
+   		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data_to_send);
+   		curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, length);
    		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
  
 		res = curl_easy_perform(curl);
@@ -38,7 +38,7 @@ void postRequest(json data_to_send, int length)     // make a POST request
 	//curl_global_cleanup();
 }
 
-void read_ram_data(string data[][2])		          // read from file and store ram_usage in a string			
+void read_MemData(string data[][2])		          // read from file and store ram_usage in a string			
 {
 	ifstream in_ram("ram_data.txt");
 	string line;
@@ -59,7 +59,7 @@ void read_ram_data(string data[][2])		          // read from file and store ram_
 	in_ram.close();
 }
 
-void get_ram_data()                  // get name and %usage of top 10 memory using processes and store in a file -- need to rename to write data
+void write_MemData()                  // get name and %usage of top 10 memory using processes and store in a file -- need to rename to write data
 {
 	string cmd = R"(ps axo rss,comm,pid \
 				| awk '{ proc_list[$2] += $1; } END \
@@ -101,35 +101,48 @@ float get_cpu_usage()
 
 int main()
 {   
-	string ram_data[10][2];               
+	string Mem_data[10][2];               
     time_t init_time = time(NULL);
 
   	while(time(NULL) - init_time <= 60)
   	{
   		time_t req_time = time(NULL);
   		int id = 0;
-  		json data_to_send;
+  		json dataPoint;
   		while(time(NULL) - req_time <= 10 && id < 10)
   		{
-  			get_ram_data();
-  			read_ram_data(ram_data);
+  			write_MemData();
+  			read_MemData(Mem_data);
 
-  			data_to_send["Data Points"][id]["Team Identifier"] = "Argo";
-  			data_to_send["Data Points"][id]["CPU Usage"] = get_cpu_usage();
+  			dataPoint["Data Points"][id]["Team Identifier"] = "Argo";
+  			dataPoint["Data Points"][id]["CPU Usage"] = get_cpu_usage();
 
   			for(int proc=0;proc<10;proc++)
   			{
-  				data_to_send["Data Points"][id]["Memory Info"][proc]["Process Name"] = ram_data[proc][1];
-  				data_to_send["Data Points"][id]["Memory Info"][proc]["Memory Usage"] = ram_data[proc][0];
+  				dataPoint["Data Points"][id]["Memory Info"][proc]["Process Name"] = Mem_data[proc][1];
+  				dataPoint["Data Points"][id]["Memory Info"][proc]["Memory Usage"] = Mem_data[proc][0];
   			}
 
   			
   			id++;
   		}
-  		cout << data_to_send << endl;
-  		ofstream o("test.json");
-  		o << setw(4) << data_to_send << endl;
 
+  		ofstream o("test.json");
+  		o << setw(4) << dataPoint << endl;
+  
+  		ifstream in("test.json");
+  		if(in.is_open())
+        {
+  		    in.seekg(0, in.end);
+  		    long length = in.tellg();
+            in.seekg(0, in.beg);
+
+            char json_data[length];
+            in.read(json_data, length);
+            in.close();
+
+            postRequest(json_data, length);
+        }
 
   		// add a sleep func or empty while loop 
   		while(time(NULL) - req_time <= 10)
