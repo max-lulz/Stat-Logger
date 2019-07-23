@@ -8,12 +8,12 @@
 using namespace std;
 using json = nlohmann::json;
 
-void postRequest(json data_to_send)     // make a POST request
+void postRequest(json data_to_send, int length)     // make a POST request
 {
 	CURL *curl;
 	CURLcode res;
 
-	curl_global_init(CURL_GLOBAL_ALL);
+	//curl_global_init(CURL_GLOBAL_ALL);
 
  	curl = curl_easy_init();
 	if(curl) 
@@ -23,8 +23,9 @@ void postRequest(json data_to_send)     // make a POST request
 		headers = curl_slist_append(headers, "Accept: application/json");
 		headers = curl_slist_append(headers, "Content-Type: application/json");
 
-    		curl_easy_setopt(curl, CURLOPT_URL, "https://fathomless-thicket-66026.herokuapp.com/argo");
+    	curl_easy_setopt(curl, CURLOPT_URL, "https://fathomless-thicket-66026.herokuapp.com/argo");
    		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data_to_send.dump().c_str());
+   		curl_easy_setopt(curl, )
    		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
  
 		res = curl_easy_perform(curl);
@@ -34,29 +35,31 @@ void postRequest(json data_to_send)     // make a POST request
     		curl_easy_cleanup(curl);
   	}
 	
-	curl_global_cleanup();
+	//curl_global_cleanup();
 }
 
-string read_ram_data()		          // read from file and store ram_usage in a string			
+void read_ram_data(string data[][2])		          // read from file and store ram_usage in a string			
 {
 	ifstream in_ram("ram_data.txt");
-	string data, line;
+	string line;
 
 	if(in_ram.is_open())
 	{
-		while(getline(in_ram,line))  // add ram usage by process linewise
-		{ 
-			data += line;      
-			data += '\n';
+		int i=0;
+		while(in_ram >> line)
+		{
+			data[i/2][i%2] = line;
+			i++;
 		}
-
 	}
-	in_ram.close();
 
-	return data;
+	else 
+		cout << "Memory Usage Data could not be accessed";
+
+	in_ram.close();
 }
 
-void get_ram_data()                  // get name and %usage of top 10 memory using processes and store in a file
+void get_ram_data()                  // get name and %usage of top 10 memory using processes and store in a file -- need to rename to write data
 {
 	string cmd = R"(ps axo rss,comm,pid \
 				| awk '{ proc_list[$2] += $1; } END \
@@ -67,25 +70,73 @@ void get_ram_data()                  // get name and %usage of top 10 memory usi
 	system(cmd.c_str());
 }
 
+float get_cpu_usage()
+{
+	ifstream in_cpu("/proc/stat");
+	char cpu[3];
+	double ticks[8], total_time=0.0, idle_time=0.0;
+	in_cpu >> cpu;
+	float cpu_usage;
+
+	if(in_cpu.is_open())
+	{
+		for(int i=0;i<8;i++)
+		{
+			in_cpu >> ticks[i];
+			total_time += ticks[i];
+		}
+
+		idle_time = ticks[3] + ticks[4];
+		cpu_usage = ((total_time - idle_time)*100)/(total_time);
+		
+		return cpu_usage;
+	}
+
+	else
+	{
+		cout << "CPU Usage data could not be accessed" << endl;
+		return -1;
+	}
+}
+
 int main()
-{                   
-  
-  	time_t init_time = time(NULL);
+{   
+	string ram_data[10][2];               
+    time_t init_time = time(NULL);
 
   	while(time(NULL) - init_time <= 60)
   	{
   		time_t req_time = time(NULL);
-  		while(time(NULL) - req_time <= 10)
+  		int id = 0;
+  		json data_to_send;
+  		while(time(NULL) - req_time <= 10 && id < 10)
   		{
   			get_ram_data();
-  			json data_to_send;
-  			data_to_send["Team name"] = "Argo";
-  			data_to_send["ram_usage"] = read_ram_data();
-  			postRequest(data_to_send);
-  			//cout <<  << endl;
+  			read_ram_data(ram_data);
+
+  			data_to_send["Data Points"][id]["Team Identifier"] = "Argo";
+  			data_to_send["Data Points"][id]["CPU Usage"] = get_cpu_usage();
+
+  			for(int proc=0;proc<10;proc++)
+  			{
+  				data_to_send["Data Points"][id]["Memory Info"][proc]["Process Name"] = ram_data[proc][1];
+  				data_to_send["Data Points"][id]["Memory Info"][proc]["Memory Usage"] = ram_data[proc][0];
+  			}
+
+  			
+  			id++;
   		}
+  		cout << data_to_send << endl;
+  		ofstream o("test.json");
+  		o << setw(4) << data_to_send << endl;
+
+
+  		// add a sleep func or empty while loop 
+  		while(time(NULL) - req_time <= 10)
+  		{}
   	}
-	
+
+
   	return 0;  
 }
 
