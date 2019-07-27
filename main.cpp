@@ -133,16 +133,16 @@ int main()
   		ifstream in("test.json");
   		if(in.is_open())
         {
-  		    in.seekg(0, in.end);
+  			in.seekg(0, in.end);
   		    long length = in.tellg();
-            in.seekg(0, in.beg);
-
+         	in.seekg(0, in.beg);
+			
             char json_data[length];
             in.read(json_data, length);
             in.close();
-
+			
             postRequest(json_data, length);
-        }
+         }
 
   		// add a sleep func or empty while loop 
   		while(time(NULL) - req_time <= 10)
