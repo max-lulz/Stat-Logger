@@ -129,8 +129,8 @@ int main()
 
   		ofstream o("test.json");
   		o << setw(4) << dataPoint << endl;
-  
   		ifstream in("test.json");
+		
   		if(in.is_open())
 		{
   			in.seekg(0, in.end);
@@ -148,8 +148,7 @@ int main()
   		while(time(NULL) - req_time <= 10)
   		{}
   	}
-
-
+	
   	return 0;  
 }
 
