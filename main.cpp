@@ -23,7 +23,7 @@ void postRequest(char *data_to_send, int length)     // make a POST request
 		headers = curl_slist_append(headers, "Accept: application/json");
 		headers = curl_slist_append(headers, "Content-Type: application/json");
 
-    	curl_easy_setopt(curl, CURLOPT_URL, "https://fathomless-thicket-66026.herokuapp.com/argo");
+    		curl_easy_setopt(curl, CURLOPT_URL, "https://fathomless-thicket-66026.herokuapp.com/argo");
    		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data_to_send);
    		curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, length);
    		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
@@ -102,7 +102,7 @@ float get_cpu_usage()
 int main()
 {   
 	string Mem_data[10][2];               
-    time_t init_time = time(NULL);
+    	time_t init_time = time(NULL);
 
   	while(time(NULL) - init_time <= 60)
   	{
@@ -132,17 +132,17 @@ int main()
   
   		ifstream in("test.json");
   		if(in.is_open())
-        {
+		{
   			in.seekg(0, in.end);
-  		    long length = in.tellg();
-         	in.seekg(0, in.beg);
+  		    	long length = in.tellg();
+         		in.seekg(0, in.beg);
 			
-            char json_data[length];
-            in.read(json_data, length);
-            in.close();
+            		char json_data[length];
+            		in.read(json_data, length);
+            		in.close();
 			
-            postRequest(json_data, length);
-         }
+            		postRequest(json_data, length);
+		}
 
   		// add a sleep func or empty while loop 
   		while(time(NULL) - req_time <= 10)
