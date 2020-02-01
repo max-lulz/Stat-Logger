@@ -5,49 +5,67 @@
 #include "ProcessDataHandler.h"
 
 float ProcessDataHandler::getCPUUsage() {
-    std::ifstream in_cpu("/proc/stat");
+    std::ifstream in_cpu(cpuFileName);
     char cpu[3];
-    double ticks[8], total_time=0.0, idle_time=0.0;
+    double ticks[8], total_time=0.0, idle_time;
     in_cpu >> cpu;
     float cpu_usage;
 
-    if(in_cpu.is_open()){
-        for(double &tick : ticks){
-            in_cpu >> tick;
-            total_time += tick;
+    try{
+        if(in_cpu.is_open()){
+            for(double &tick : ticks){
+                in_cpu >> tick;
+                total_time += tick;
+            }
+
+            idle_time = ticks[3] + ticks[4];
+            cpu_usage = (float)(((total_time - idle_time)*100)/(total_time));
+
+            return cpu_usage;
         }
 
-        idle_time = ticks[3] + ticks[4];
-        cpu_usage = (float)(((total_time - idle_time)*100)/(total_time));
-
-        return cpu_usage;
+        else{
+            throw std::runtime_error("CPU Usage data could not be accessed");
+        }
     }
 
-    else{
-        std::cout << "CPU Usage data could not be accessed" << "\n";
-        return -1;
+    catch(const std::exception &er){
+        std::cerr << er.what() << "\n";
     }
+
+    return -1;
 }
 
 void ProcessDataHandler::writeProcData() {
-    std::string cmd = R"(ps xco pid,cmd,%mem,%cpu --sort=-%mem | head -11 | tail -10 > ProcData.txt)";
-    system(cmd.c_str());
+    system(dataCMD.c_str());
 }
 
-void ProcessDataHandler::readProcData(std::string &data) {
-    std::ifstream in_ram("ram_data.txt");
+void ProcessDataHandler::readProcData(std::vector<std::pair <std::string, std::string>> &data) {
+    std::ifstream in_ram(dataFileName);
     std::string line;
 
-    if(in_ram.is_open()){
-        int i=0;
-        while(in_ram >> line){
-            data[i/2][i%2] = line;
-            i++;
+    try{
+        if(in_ram.is_open()){
+            std::string a,b;
+            while(in_ram >> a && in_ram >> b){
+                if(b == "Content"){
+                    a+=b;
+                    in_ram >> b;
+                }
+
+                data.emplace_back(a, b);
+            }
+        }
+
+        else{
+            throw std::runtime_error("Memory Usage Data could not be accessed");
         }
     }
 
-    else
-        std::cout << "Memory Usage Data could not be accessed";
+    catch(const std::exception &er) {
+        std::cerr << er.what() << "\n";
+    }
 
     in_ram.close();
 }
+
