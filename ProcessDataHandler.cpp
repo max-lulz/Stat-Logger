@@ -4,6 +4,10 @@
 #include <bits/stdc++.h>
 #include "ProcessDataHandler.h"
 
+ProcessDataHandler::ProcessDataHandler(std::string &identifier) {
+    this->identifier = identifier;
+}
+
 float ProcessDataHandler::getCPUUsage() {
     std::ifstream in_cpu(cpuFileName);
     char cpu[3];
@@ -42,18 +46,16 @@ void ProcessDataHandler::writeProcData() {
 
 void ProcessDataHandler::readProcData(std::vector<std::pair <std::string, std::string>> &data) {
     std::ifstream in_ram(dataFileName);
-    std::string line;
 
     try{
         if(in_ram.is_open()){
-            std::string a,b;
-            while(in_ram >> a && in_ram >> b){
-                if(b == "Content"){
-                    a+=b;
-                    in_ram >> b;
+            int i=0;
+            while(in_ram >> data[i].first && in_ram >> data[i].second){
+                if(data[i].second == "Content"){
+                    data[i].first+=data[i].second;
+                    in_ram >> data[i].second;
                 }
-
-                data.emplace_back(a, b);
+                i++;
             }
         }
 
@@ -67,5 +69,10 @@ void ProcessDataHandler::readProcData(std::vector<std::pair <std::string, std::s
     }
 
     in_ram.close();
+}
+
+void ProcessDataHandler::jsonifyData(nlohmann::json &dataPoint) {
+    dataPoint["Data Points"][id]["Identifier"] = identifier;
+    dataPoint["Data Points"][id]["CPU Usage"] = getCPUUsage();
 }
 
