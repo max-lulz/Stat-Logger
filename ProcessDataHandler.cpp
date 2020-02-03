@@ -49,13 +49,13 @@ void ProcessDataHandler::readProcData(std::vector<std::pair <std::string, std::s
 
     try{
         if(in_ram.is_open()){
-            int i=0;
-            while(in_ram >> data[i].first && in_ram >> data[i].second){
-                if(data[i].second == "Content"){
-                    data[i].first+=data[i].second;
-                    in_ram >> data[i].second;
+            std::string procName, procMemUsage;
+            while(in_ram >> procName && in_ram >> procMemUsage){
+                if(procMemUsage == "Content"){
+                    procName+=procMemUsage;
+                    in_ram >> procMemUsage;
                 }
-                i++;
+                data.emplace_back(procName, procMemUsage);
             }
         }
 
@@ -72,7 +72,26 @@ void ProcessDataHandler::readProcData(std::vector<std::pair <std::string, std::s
 }
 
 void ProcessDataHandler::jsonifyData(nlohmann::json &dataPoint) {
-    dataPoint["Data Points"][id]["Identifier"] = identifier;
-    dataPoint["Data Points"][id]["CPU Usage"] = getCPUUsage();
+    std::vector<std::pair <std::string, std::string>> dataPoints;
+    //dataPoint["Data Points"]["Team Identifier"] = identifier;
+
+    writeProcData();
+    readProcData(dataPoints);
+
+    time_t req_time = time(nullptr);
+
+    int id = 0;
+    while((++id) <= 10 && time(nullptr) - req_time <= 10){
+        dataPoint["Data Points"][id]["CPU Usage"] = getCPUUsage();
+
+        for(int procNum=0;procNum<dataPoints.size();procNum++){
+            dataPoint["Data Points"][id]["Memory Info"][procNum]["Process Name"] = dataPoints[procNum].first;
+            dataPoint["Data Points"][id]["Memory Info"][procNum]["Memory Usage"] = dataPoints[procNum].second;
+        }
+    }
+
+    std::ofstream jsonOut("test.json");
+    jsonOut << std::setw(4) << dataPoint << "\n";
+    jsonOut.close();
 }
 

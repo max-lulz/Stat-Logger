@@ -7,9 +7,6 @@
 #ifndef STATLOGGER_PROCESSDATAHANDLER_H
 #define STATLOGGER_PROCESSDATAHANDLER_H
 
-
-#include <string>
-
 class ProcessDataHandler {
     private:
         std::string dataFileName = "ProcData.txt";
@@ -18,7 +15,7 @@ class ProcessDataHandler {
         std::string identifier;
 
     public:
-        ProcessDataHandler(std::string &identifier);
+        explicit ProcessDataHandler(std::string &identifier);
 
         void writeProcData();
         void readProcData(std::vector<std::pair <std::string, std::string>> &data);

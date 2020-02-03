@@ -31,36 +31,18 @@ void postRequest(char *data_to_send, int &length){
 }
 
 int main(){
-    ProcessDataHandler ProcData();
-	std::string Mem_data[10][2];
+    std::string iden = "Aryesh";
+    ProcessDataHandler ProcData(iden);
+
 	time_t init_time = time(nullptr);
 
-  	while(time(nullptr) - init_time <= 60)
-  	{
-  		time_t req_time = time(nullptr);
-  		int id = 0;
+	int num=0;
+  	while(time(nullptr) - init_time <= 60){
   		nlohmann::json dataPoint;
-  		while(time(nullptr) - req_time <= 10 && id < 10)
-  		{
-  			write_MemData();
-  			read_MemData(Mem_data);
+  		ProcData.jsonifyData(dataPoint);
+        num+=10;
 
-  			dataPoint["Data Points"][id]["Team Identifier"] = "Argo";
-  			dataPoint["Data Points"][id]["CPU Usage"] = get_cpu_usage();
-
-  			for(int proc=0;proc<10;proc++)
-  			{
-  				dataPoint["Data Points"][id]["Memory Info"][proc]["Process Name"] = Mem_data[proc][1];
-  				dataPoint["Data Points"][id]["Memory Info"][proc]["Memory Usage"] = Mem_data[proc][0];
-  			}
-
-  			
-  			id++;
-  		}
-
-  		std::ofstream o("test.json");
-  		o << std::setw(4) << dataPoint << "\n";
-  		std::ifstream in("test.json");
+  		/*std::ifstream in("test.json");
 		
   		if(in.is_open())
 		{
@@ -77,8 +59,9 @@ int main(){
 
   		// add a sleep func or empty while loop 
   		while(time(nullptr) - req_time <= 10)
-  		{}
+  		{}*/
   	}
+  	std::cout << num;
   	return 0;  
 }
 
