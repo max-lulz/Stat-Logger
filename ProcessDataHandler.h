@@ -20,7 +20,7 @@ class ProcessDataHandler {
         void writeProcData();
         void readProcData(std::vector<std::pair <std::string, std::string>> &data);
         float getCPUUsage();
-        void jsonifyData(nlohmann::json &dataPoint);
+        void jsonifyData(nlohmann::json &jsonData);
 };
 
 #endif //STATLOGGER_PROCESSDATAHANDLER_H

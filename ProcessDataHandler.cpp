@@ -71,27 +71,28 @@ void ProcessDataHandler::readProcData(std::vector<std::pair <std::string, std::s
     in_ram.close();
 }
 
-void ProcessDataHandler::jsonifyData(nlohmann::json &dataPoint) {
-    std::vector<std::pair <std::string, std::string>> dataPoints;
-    //dataPoint["Data Points"]["Team Identifier"] = identifier;
+void ProcessDataHandler::jsonifyData(nlohmann::json &jsonData) {
 
-    writeProcData();
-    readProcData(dataPoints);
+    time_t init_time = time(nullptr);
+    int id = -1;
 
-    time_t req_time = time(nullptr);
+    while((id++) < 10 && time(nullptr) - init_time <= 10){
+        std::vector<std::pair <std::string, std::string>> dataPoints;
 
-    int id = 0;
-    while((++id) <= 10 && time(nullptr) - req_time <= 10){
-        dataPoint["Data Points"][id]["CPU Usage"] = getCPUUsage();
+        writeProcData();
+        readProcData(dataPoints);
+
+        jsonData["Data Points"][id]["Team Identifier"] = identifier;
+        jsonData["Data Points"][id]["CPU Usage"] = getCPUUsage();
 
         for(int procNum=0;procNum<dataPoints.size();procNum++){
-            dataPoint["Data Points"][id]["Memory Info"][procNum]["Process Name"] = dataPoints[procNum].first;
-            dataPoint["Data Points"][id]["Memory Info"][procNum]["Memory Usage"] = dataPoints[procNum].second;
+            jsonData["Data Points"][id]["Memory Info"][procNum]["Process Name"] = dataPoints[procNum].first;
+            jsonData["Data Points"][id]["Memory Info"][procNum]["Memory Usage"] = dataPoints[procNum].second;
         }
     }
 
     std::ofstream jsonOut("test.json");
-    jsonOut << std::setw(4) << dataPoint << "\n";
+    jsonOut << std::setw(4) << jsonData << "\n";
     jsonOut.close();
 }
 
