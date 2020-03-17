@@ -106,5 +106,3 @@ void ProcessDataHandler::jsonifyData(nlohmann::json &jsonData) {
     jsonOut << std::setw(4) << jsonData << "\n";
     jsonOut.close();
 }
-
-

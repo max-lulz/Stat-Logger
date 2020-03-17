@@ -2,7 +2,7 @@
 // Created by aryesh on 02/02/20.
 //
 
-#include "json.hpp"
+#include "nlohmann/json.hpp"
 
 #ifndef STATLOGGER_PROCESSDATAHANDLER_H
 #define STATLOGGER_PROCESSDATAHANDLER_H
