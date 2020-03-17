@@ -10,7 +10,7 @@ int main(){
 
     time_t init_time = time(nullptr);
 
-    int i=0;
+    int i=1;
 	while(time(nullptr) - init_time <= 60){
   		nlohmann::json dataPoint;
   		ProcData.jsonifyData(dataPoint);
