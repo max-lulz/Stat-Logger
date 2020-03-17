@@ -1,15 +1,26 @@
 //
 // Created by aryesh on 02/02/20.
 //
-#include <bits/stdc++.h>
+
+#include <iostream>
+#include <fstream>
+#include <iomanip>
+#include <utility>
 #include "ProcessDataHandler.h"
 
 ProcessDataHandler::ProcessDataHandler(std::string &identifier) {
     this->identifier = identifier;
 }
 
+ProcessDataHandler::ProcessDataHandler(std::string &identifier, std::string &outputFile){
+    this->identifier = identifier;
+    this->outputFile = outputFile;
+}
+
 float ProcessDataHandler::getCPUUsage() {
-    std::ifstream in_cpu(cpuFileName);
+    std::ifstream in_cpu;
+    in_cpu.open(cpuFileName);
+
     char cpu[3];
     double ticks[8], total_time=0.0, idle_time;
     in_cpu >> cpu;
@@ -33,30 +44,32 @@ float ProcessDataHandler::getCPUUsage() {
         }
     }
 
-    catch(const std::exception &er){
+    catch(const std::runtime_error &er){
         std::cerr << er.what() << "\n";
+        return -1;
     }
-
-    return -1;
 }
 
-void ProcessDataHandler::writeProcData() {
+void ProcessDataHandler::writeProcessData() {
     system(dataCMD.c_str());
 }
 
-void ProcessDataHandler::readProcData(std::vector<std::pair <std::string, std::string>> &data) {
-    std::ifstream in_ram(dataFileName);
+void ProcessDataHandler::readProcessData(std::vector<std::pair <std::string, std::string>> &data) {
+    std::ifstream in_ram;
+    in_ram.open(outputFile);
 
     try{
         if(in_ram.is_open()){
             std::string procName, procMemUsage;
             while(in_ram >> procName && in_ram >> procMemUsage){
-                if(procMemUsage == "Content"){
+                if(procMemUsage == "Content"){                                  // for processes with whitespace in name
                     procName+=procMemUsage;
                     in_ram >> procMemUsage;
                 }
                 data.emplace_back(procName, procMemUsage);
             }
+
+            in_ram.close();
         }
 
         else{
@@ -64,11 +77,9 @@ void ProcessDataHandler::readProcData(std::vector<std::pair <std::string, std::s
         }
     }
 
-    catch(const std::exception &er) {
+    catch(const std::runtime_error &er) {
         std::cerr << er.what() << "\n";
     }
-
-    in_ram.close();
 }
 
 void ProcessDataHandler::jsonifyData(nlohmann::json &jsonData) {
@@ -79,8 +90,8 @@ void ProcessDataHandler::jsonifyData(nlohmann::json &jsonData) {
     while((id++) < 10 && time(nullptr) - init_time <= 10){
         std::vector<std::pair <std::string, std::string>> dataPoints;
 
-        writeProcData();
-        readProcData(dataPoints);
+        writeProcessData();
+        readProcessData(dataPoints);
 
         jsonData["Data Points"][id]["Team Identifier"] = identifier;
         jsonData["Data Points"][id]["CPU Usage"] = getCPUUsage();
@@ -95,4 +106,5 @@ void ProcessDataHandler::jsonifyData(nlohmann::json &jsonData) {
     jsonOut << std::setw(4) << jsonData << "\n";
     jsonOut.close();
 }
+
 
