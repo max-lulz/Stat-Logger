@@ -9,10 +9,11 @@
 
 class ProcessDataHandler {
     private:
-        std::string outputFile = "ProcData.txt";
+        std::string dataFile = "ProcData.txt";
         std::string dataCMD = R"(ps axco cmd,%mem --sort=-%mem | head -11 | tail -10 > ProcData.txt)";
         std::string cpuFileName = "/proc/stat";
         std::string identifier;
+        std::string outputFile = "ProcOutput.json";
 
     public:
         explicit ProcessDataHandler(std::string &identifier);

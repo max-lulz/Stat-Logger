@@ -56,7 +56,7 @@ void ProcessDataHandler::writeProcessData() {
 
 void ProcessDataHandler::readProcessData(std::vector<std::pair <std::string, std::string>> &data) {
     std::ifstream in_ram;
-    in_ram.open(outputFile);
+    in_ram.open(dataFile);
 
     try{
         if(in_ram.is_open()){
@@ -102,7 +102,7 @@ void ProcessDataHandler::jsonifyData(nlohmann::json &jsonData) {
         }
     }
 
-    std::ofstream jsonOut("test.json");
+    std::ofstream jsonOut(outputFile);
     jsonOut << std::setw(4) << jsonData << "\n";
     jsonOut.close();
 }
